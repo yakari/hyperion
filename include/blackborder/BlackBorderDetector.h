@@ -61,45 +61,45 @@ namespace hyperion
 		template <typename Pixel_T>
 		BlackBorder process(const Image<Pixel_T> & image)
 		{
-			// only test the topleft third of the image
-			int width = image.width() /3;
-			int height = image.height() / 3;
-			int maxSize = std::max(width, height);
+
+			// test center and 33%, 66% of width/heigth
+			// 33 and 66 will check left and top
+			// center ill check right and bottom sids
+			int width = image.width();
+			int height = image.height();
+			int width33percent = width / 3;
+			int height33percent = height / 3;
+			int width66percent = width33percent * 2;
+			int height66percent = height33percent * 2;
+			int xCenter = width / 2;
+			int yCenter = height / 2;
+
 
 			int firstNonBlackXPixelIndex = -1;
 			int firstNonBlackYPixelIndex = -1;
 
-			// find some pixel of the image
-			for (int i = 0; i < maxSize; ++i)
+			// find first X pixel of the image
+			for (int x = 0; x < width; ++x)
 			{
-				int x = std::min(i, width);
-				int y = std::min(i, height);
-
-				const Pixel_T & color = image(x, y);
-				if (!isBlack(color))
+				const Pixel_T & color1 = image( (width - x), yCenter); // right side center line check
+				const Pixel_T & color2 = image(x, height33percent);
+				const Pixel_T & color3 = image(x, height66percent);
+				if (!isBlack(color1) || !isBlack(color2) || !isBlack(color3))
 				{
 					firstNonBlackXPixelIndex = x;
+					break;
+				}
+			}
+
+			// find first Y pixel of the image
+			for (int y = 0; y < height; ++y)
+			{
+				const Pixel_T & color1 = image(xCenter, (height - y)); // bottom center line check
+				const Pixel_T & color2 = image(width33percent, y );
+				const Pixel_T & color3 = image(width66percent, y);
+				if (!isBlack(color1) || !isBlack(color2) || !isBlack(color3))
+				{
 					firstNonBlackYPixelIndex = y;
-					break;
-				}
-			}
-
-			// expand image to the left
-			for(; firstNonBlackXPixelIndex > 0; --firstNonBlackXPixelIndex)
-			{
-				const Pixel_T & color = image(firstNonBlackXPixelIndex-1, firstNonBlackYPixelIndex);
-				if (isBlack(color))
-				{
-					break;
-				}
-			}
-
-			// expand image to the top
-			for(; firstNonBlackYPixelIndex > 0; --firstNonBlackYPixelIndex)
-			{
-				const Pixel_T & color = image(firstNonBlackXPixelIndex, firstNonBlackYPixelIndex-1);
-				if (isBlack(color))
-				{
 					break;
 				}
 			}
