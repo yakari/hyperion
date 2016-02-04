@@ -1,0 +1,9 @@
+{
+	"name" : "Strobe white SPEED 0.5",
+	"script" : "strobe.py",
+	"args" :
+	{
+		"color"     : [ 255, 255, 255 ],
+		"frequency" : 5.0
+	}
+}
